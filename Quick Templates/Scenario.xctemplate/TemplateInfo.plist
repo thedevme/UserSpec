@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>Kind</key>
+    <string>Xcode.IDEFoundation.TextSubstitutionFileTemplateKind</string>
+    <key>Description</key>
+    <string>A UserSpec scenario with Given/When/Then</string>
+    <key>Summary</key>
+    <string>A single UserSpec scenario</string>
+    <key>SortOrder</key>
+    <string>2</string>
+    <key>DefaultCompletionName</key>
+    <string>Scenario</string>
+    <key>Options</key>
+    <array>
+        <dict>
+            <key>Identifier</key>
+            <string>productName</string>
+            <key>Required</key>
+            <true/>
+            <key>Name</key>
+            <string>Function Name:</string>
+            <key>Description</key>
+            <string>The name of the test function</string>
+            <key>Type</key>
+            <string>text</string>
+            <key>NotPersisted</key>
+            <true/>
+        </dict>
+        <dict>
+            <key>Identifier</key>
+            <string>scenario</string>
+            <key>Required</key>
+            <true/>
+            <key>Name</key>
+            <string>Scenario:</string>
+            <key>Description</key>
+            <string>Description of the scenario</string>
+            <key>Type</key>
+            <string>text</string>
+            <key>Default</key>
+            <string>User can perform action successfully</string>
+            <key>NotPersisted</key>
+            <true/>
+        </dict>
+    </array>
+</dict>
+</plist>
