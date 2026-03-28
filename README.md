@@ -18,7 +18,7 @@ Add UserSpec to your `Package.swift`:
 
 ```swift
 dependencies: [
-    .package(url: "https://github.com/thedevme/UserSpec.git", from: "0.1.0")
+    .package(url: "https://github.com/thedevme/UserSpec.git", from: "0.2.0")
 ]
 ```
 
@@ -96,6 +96,60 @@ func bookingConfirms() async throws {
 }
 ```
 
+## UI Testing
+
+UserSpec provides a dedicated API for XCUITest integration:
+
+```swift
+import XCTest
+import Testing
+import UserSpec
+
+@UserStory("As a traveler, I want to select my seat")
+struct SeatSelectionUISpec {
+
+    @Test
+    @UIScenario("Economy user sees error when tapping business seat")
+    func economySeesErrorOnBusinessSeat() throws {
+        let app = XCUIApplication()
+
+        try givenApp("user has an economy ticket") {
+            app.launchArguments = ["--economy-user"]
+            return app.launched()
+        }
+        .whenTap("seat 1A in Business Class") { app in
+            app.buttons["seat-1A"].tap()
+            return app
+        }
+        .thenSee("class restriction error message") { app, context in
+            #expect(app.staticTexts["Only economy seats available"].exists)
+        }
+    }
+}
+```
+
+### UI Testing API
+
+| Function | Description |
+|----------|-------------|
+| `givenApp(_:setup:)` | Entry point — launches and configures the app |
+| `.whenTap(_:action:)` | Chains to a tap action |
+| `.when(_:action:)` | Chains to any UI action |
+| `.thenSee(_:assertion:)` | Executes chain with visual assertion |
+
+### XCUIApplication Extensions
+
+```swift
+// Launch and return for chaining
+app.launched()
+
+// Launch with arguments
+app.launched(with: ["--reset-state"])
+
+// Launch with environment
+app.launched(environment: ["API_URL": "https://test.api.com"])
+```
+
 ## Failure Output
 
 When a test fails, UserSpec shows the full chain context:
@@ -118,15 +172,24 @@ When a test fails, UserSpec shows the full chain context:
 |-------|-------------|
 | `@UserStory("...")` | Marks a struct as a collection of scenarios |
 | `@Scenario("...")` | Marks a function as a test scenario |
-| `@UIScenario("...")` | UI testing variant (v0.2.0) |
+| `@UIScenario("...")` | Marks a function as a UI test scenario |
 
-### Functions
+### Unit Testing Functions
 
 | Function | Description |
 |----------|-------------|
 | `given(_:setup:)` | Entry point — sets up test context |
 | `.when(_:action:)` | Chains to action step |
 | `.then(_:assertion:)` | Executes chain with assertion |
+
+### UI Testing Functions
+
+| Function | Description |
+|----------|-------------|
+| `givenApp(_:setup:)` | Entry point — sets up app context |
+| `.whenTap(_:action:)` | Chains to tap action |
+| `.when(_:action:)` | Chains to any action |
+| `.thenSee(_:assertion:)` | Executes chain with visual assertion |
 
 ## Roadmap
 
