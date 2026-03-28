@@ -7,6 +7,65 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.5.0] - 2026-03-28
+
+### Added
+- `SnapshotManager` for recording and comparing snapshots
+- `SnapshotConfig` for customizing snapshot directory and file extension
+- `SnapshotResult` enum for match/mismatch/noReference states
+- `SnapshotRepresentable` protocol for types convertible to snapshot data
+- Built-in conformances for String, Data, Array, Dictionary, and Encodable
+- `assertSnapshot()` function for snapshot assertions
+- `InlineSnapshot<T>` for in-code expected values
+- `JSONSnapshot` helper for JSON-encodable types
+- `TextSnapshot` helper for text content
+- `SnapshotError` with descriptive diff output
+- 24 new tests for snapshot testing
+
+## [1.4.0] - 2026-03-28
+
+### Added
+- `Benchmark` for measuring execution time of operations
+- `Benchmark.measure()` returns value with duration (sync and async)
+- `Benchmark.measureAverage()` runs multiple iterations
+- `PerformanceAssert.completes(within:)` asserts time thresholds
+- `PerformanceAssert.completesInMilliseconds()` convenience method
+- `PerformanceBaseline` for storing and comparing performance baselines
+- `PerformanceBaseline.compare()` detects regressions vs improvements
+- `MemoryMeasurement` for tracking memory allocation
+- `MemoryMeasurement.currentUsage` and `currentUsageMB`
+- `PerformanceReporter` for collecting and reporting performance metrics
+- `PerformanceReporter.generateReport()` creates summary reports
+- 31 new tests for performance features
+
+## [1.3.0] - 2026-03-28
+
+### Added
+- `Mockable` protocol for creating mock objects with call recording
+- `CallRecorder` for tracking method invocations and arguments
+- `Spy<T>` wrapper for recording calls on real objects
+- `Stub<T>` fluent builder for setting up stub return values
+- Argument matchers: `AnyMatcher`, `EqualMatcher`, `PredicateMatcher`, `NilMatcher`, `NotNilMatcher`
+- `Verify` helpers for mock verification assertions
+- `verifyMock()` throwing functions for test assertions
+- Jira integration guide with workflow and StoryParser examples
+- Figma integration guide for design-driven UI testing
+- 36 new tests for mocking framework
+
+## [1.2.0] - 2026-03-28
+
+### Added
+- `StoryParser` for converting plain text user stories to Swift test stubs
+- `StoryParser.parse()` extracts role, action, benefit, and scenarios from text
+- `StoryParser.generateSwift()` generates Swift test code from parsed stories
+- `StoryParser.generateGherkin()` exports stories in Gherkin format
+- `TestReporter` singleton for recording test results
+- `ReportGenerator.generateHTML()` creates interactive HTML test reports
+- `ReportGenerator.generateGherkin()` exports results in Gherkin format
+- `ReportGenerator.generateConsole()` creates terminal-friendly reports
+- `ReportGenerator.writeHTML()` and `writeGherkin()` file output helpers
+- 21 new tests for StoryParser and Reporter
+
 ## [1.1.0] - 2026-03-28
 
 ### Added

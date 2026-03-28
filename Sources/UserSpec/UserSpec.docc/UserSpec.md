@@ -66,3 +66,53 @@ Design → User Story → @Scenario → Given/When/Then → #expect
 - ``givenApp(_:setup:)-1lpqv``
 - ``UIGivenStep``
 - ``UIWhenStep``
+
+### Test Data Builders
+
+- ``Buildable``
+- ``Builder``
+- ``FixtureProviding``
+
+### Shared Examples
+
+- ``SharedExamples``
+- ``SharedBehavior``
+- ``itBehavesLike(_:context:)``
+
+### Tooling
+
+- ``StoryParser``
+- ``TestReporter``
+- ``ReportGenerator``
+
+### Mocking
+
+- ``Mockable``
+- ``CallRecorder``
+- ``Spy``
+- ``Stub``
+- ``ArgumentMatcher``
+
+### Performance Testing
+
+- ``Benchmark``
+- ``PerformanceAssert``
+- ``PerformanceBaseline``
+- ``MemoryMeasurement``
+- ``PerformanceReporter``
+
+### Snapshot Testing
+
+- ``SnapshotManager``
+- ``SnapshotConfig``
+- ``SnapshotResult``
+- ``SnapshotRepresentable``
+- ``assertSnapshot(_:named:file:function:)``
+- ``InlineSnapshot``
+- ``JSONSnapshot``
+- ``TextSnapshot``
+
+### Integration Guides
+
+- <doc:JiraIntegration>
+- <doc:FigmaIntegration>
