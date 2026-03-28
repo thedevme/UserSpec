@@ -1,0 +1,91 @@
+name: CI
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+
+jobs:
+  test-macos:
+    name: Test on macOS
+    runs-on: macos-14
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Select Xcode 16
+        run: sudo xcode-select -s /Applications/Xcode_16.app
+
+      - name: Show Swift version
+        run: swift --version
+
+      - name: Build
+        run: swift build
+
+      - name: Run tests
+        run: swift test
+
+  test-ios:
+    name: Test on iOS Simulator
+    runs-on: macos-14
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Select Xcode 16
+        run: sudo xcode-select -s /Applications/Xcode_16.app
+
+      - name: Build and Test iOS
+        run: |
+          xcodebuild test \
+            -scheme UserSpec \
+            -destination 'platform=iOS Simulator,name=iPhone 16,OS=18.0' \
+            -skipPackagePluginValidation
+
+  build-platforms:
+    name: Build for ${{ matrix.platform }}
+    runs-on: macos-14
+    strategy:
+      matrix:
+        include:
+          - platform: watchOS
+            destination: 'platform=watchOS Simulator,name=Apple Watch Series 10 (46mm),OS=11.0'
+          - platform: tvOS
+            destination: 'platform=tvOS Simulator,name=Apple TV 4K (3rd generation),OS=18.0'
+          - platform: visionOS
+            destination: 'platform=visionOS Simulator,name=Apple Vision Pro,OS=2.0'
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Select Xcode 16
+        run: sudo xcode-select -s /Applications/Xcode_16.app
+
+      - name: Build for ${{ matrix.platform }}
+        run: |
+          xcodebuild build \
+            -scheme UserSpec \
+            -destination '${{ matrix.destination }}' \
+            -skipPackagePluginValidation
+
+  documentation:
+    name: Build Documentation
+    runs-on: macos-14
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Select Xcode 16
+        run: sudo xcode-select -s /Applications/Xcode_16.app
+
+      - name: Build DocC
+        run: |
+          swift package generate-documentation \
+            --product UserSpec \
+            --disable-indexing \
+            --transform-for-static-hosting \
+            --hosting-base-path UserSpec \
+            --output-path docs
+
+      - name: Upload documentation artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: documentation
+          path: docs

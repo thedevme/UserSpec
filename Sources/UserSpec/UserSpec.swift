@@ -1,18 +1,56 @@
 // MARK: - Step Context
 
-/// Captures descriptions from all steps in a chain for failure reporting
+/// Captures descriptions from all steps in a chain for failure reporting.
+///
+/// `StepContext` is passed to your assertion closure in `.then()`, containing
+/// the descriptions from each step in the chain. Use it for debugging or
+/// custom failure messages.
+///
+/// ## Example
+///
+/// ```swift
+/// .then("expected outcome") { result, context in
+///     print(context.formatFailureMessage())
+///     #expect(result == expected)
+/// }
+/// ```
+///
+/// ## See Also
+///
+/// - ``GivenStep``
+/// - ``WhenStep``
 public struct StepContext: Sendable {
+    /// The description from the `given()` step.
     public let givenDescription: String
+
+    /// The description from the `.when()` step.
     public let whenDescription: String
+
+    /// The description from the `.then()` step.
     public let thenDescription: String
 
+    /// Creates a new step context with the given descriptions.
+    ///
+    /// - Parameters:
+    ///   - given: The description from the given step.
+    ///   - when: The description from the when step.
+    ///   - then: The description from the then step.
     public init(given: String, when: String, then: String) {
         self.givenDescription = given
         self.whenDescription = when
         self.thenDescription = then
     }
 
-    /// Formats a failure message showing the full chain context
+    /// Formats a failure message showing the full chain context.
+    ///
+    /// Returns a multi-line string with all step descriptions:
+    /// ```
+    /// Given: a user is logged in
+    /// When: they click logout
+    /// Then: they are redirected to login page
+    /// ```
+    ///
+    /// - Returns: A formatted string containing all step descriptions.
     public func formatFailureMessage() -> String {
         """
         Given: \(givenDescription)
@@ -24,17 +62,62 @@ public struct StepContext: Sendable {
 
 // MARK: - Given Step
 
-/// Entry point for BDD chains - captures setup context
+/// Entry point for BDD chains — captures the setup context.
+///
+/// Create a `GivenStep` using the ``given(_:setup:)-4l5wm`` free function.
+/// Chain it with ``when(_:action:)`` to describe the action, then terminate
+/// with `.then()` to verify the result.
+///
+/// ## Example
+///
+/// ```swift
+/// given("user has an economy ticket") {
+///     User(ticketClass: .economy)
+/// }
+/// .when("they tap seat 1A") { user in
+///     SeatMap().select(seat: "1A", for: user)
+/// }
+/// .then("selection fails") { result, context in
+///     #expect(result == .failed(.classRestriction))
+/// }
+/// ```
+///
+/// ## Topics
+///
+/// ### Chaining
+///
+/// - ``when(_:action:)``
+///
+/// ## See Also
+///
+/// - ``given(_:setup:)-4l5wm``
+/// - ``WhenStep``
+/// - ``AsyncGivenStep``
 public struct GivenStep<Context: Sendable>: Sendable {
+    /// The description of the initial state being set up.
     public let description: String
+
     let setup: @Sendable () throws -> Context
 
+    /// Creates a new given step with a description and setup closure.
+    ///
+    /// - Parameters:
+    ///   - description: A description of the initial state.
+    ///   - setup: A closure that creates and returns the test context.
     public init(_ description: String, setup: @escaping @Sendable () throws -> Context) {
         self.description = description
         self.setup = setup
     }
 
-    /// Chain to a when step with an action
+    /// Chains to a when step with an action.
+    ///
+    /// The action closure receives the context created by the setup closure
+    /// and returns a result that will be passed to the assertion.
+    ///
+    /// - Parameters:
+    ///   - description: A description of the action being performed.
+    ///   - action: A closure that performs the action and returns a result.
+    /// - Returns: A ``WhenStep`` ready to be terminated with `.then()`.
     public func when<Result: Sendable>(
         _ description: String,
         action: @escaping @Sendable (Context) throws -> Result
@@ -50,13 +133,51 @@ public struct GivenStep<Context: Sendable>: Sendable {
 
 // MARK: - When Step
 
-/// Intermediate step capturing the action
+/// Intermediate step in the BDD chain — captures the action.
+///
+/// A `WhenStep` is created by calling ``GivenStep/when(_:action:)`` on a
+/// ``GivenStep``. Terminate the chain with ``then(_:assertion:)`` to execute
+/// the full test.
+///
+/// ## Example
+///
+/// ```swift
+/// given("a shopping cart") { Cart() }
+/// .when("user adds an item") { cart in      // Creates WhenStep
+///     cart.add(Item(name: "Book"))
+/// }
+/// .then("cart has one item") { cart, _ in
+///     #expect(cart.items.count == 1)
+/// }
+/// ```
+///
+/// ## Topics
+///
+/// ### Executing the Chain
+///
+/// - ``then(_:assertion:)``
+///
+/// ## See Also
+///
+/// - ``GivenStep``
+/// - ``AsyncWhenStep``
 public struct WhenStep<Context: Sendable, Result: Sendable>: Sendable {
+    /// The description from the given step.
     public let givenDescription: String
+
+    /// The description of the action being performed.
     public let description: String
+
     let setup: @Sendable () throws -> Context
     let action: @Sendable (Context) throws -> Result
 
+    /// Creates a new when step.
+    ///
+    /// - Parameters:
+    ///   - givenDescription: The description from the given step.
+    ///   - description: The description of this action.
+    ///   - setup: The setup closure from the given step.
+    ///   - action: The action closure to perform.
     public init(
         givenDescription: String,
         description: String,
@@ -69,7 +190,17 @@ public struct WhenStep<Context: Sendable, Result: Sendable>: Sendable {
         self.action = action
     }
 
-    /// Execute the chain with an assertion
+    /// Executes the chain with an assertion.
+    ///
+    /// This method:
+    /// 1. Runs the setup closure from `given()`
+    /// 2. Passes the context to the action closure from `when()`
+    /// 3. Passes the result and step context to your assertion closure
+    ///
+    /// - Parameters:
+    ///   - description: A description of the expected outcome.
+    ///   - assertion: A closure that verifies the result.
+    /// - Throws: Any error thrown by the setup, action, or assertion closures.
     public func then(
         _ description: String,
         assertion: @escaping @Sendable (Result, StepContext) throws -> Void
@@ -87,17 +218,52 @@ public struct WhenStep<Context: Sendable, Result: Sendable>: Sendable {
 
 // MARK: - Async Given Step
 
-/// Async variant of GivenStep
+/// Async variant of ``GivenStep`` for asynchronous setup.
+///
+/// Use `AsyncGivenStep` when your setup closure needs to perform async
+/// operations like network calls or database queries.
+///
+/// ## Example
+///
+/// ```swift
+/// try await given("user data is loaded") {
+///     await UserService.fetchCurrentUser()
+/// }
+/// .when("user updates profile") { user in
+///     await user.updateName("New Name")
+/// }
+/// .then("name is updated") { result, _ in
+///     #expect(result.success)
+/// }
+/// ```
+///
+/// ## See Also
+///
+/// - ``given(_:setup:)-68bc2``
+/// - ``GivenStep``
+/// - ``AsyncWhenStep``
 public struct AsyncGivenStep<Context: Sendable>: Sendable {
+    /// The description of the initial state being set up.
     public let description: String
+
     let setup: @Sendable () async throws -> Context
 
+    /// Creates a new async given step.
+    ///
+    /// - Parameters:
+    ///   - description: A description of the initial state.
+    ///   - setup: An async closure that creates and returns the test context.
     public init(_ description: String, setup: @escaping @Sendable () async throws -> Context) {
         self.description = description
         self.setup = setup
     }
 
-    /// Chain to an async when step
+    /// Chains to an async when step.
+    ///
+    /// - Parameters:
+    ///   - description: A description of the action being performed.
+    ///   - action: An async closure that performs the action.
+    /// - Returns: An ``AsyncWhenStep`` ready to be terminated with `.then()`.
     public func when<Result: Sendable>(
         _ description: String,
         action: @escaping @Sendable (Context) async throws -> Result
@@ -113,13 +279,32 @@ public struct AsyncGivenStep<Context: Sendable>: Sendable {
 
 // MARK: - Async When Step
 
-/// Async variant of WhenStep
+/// Async variant of ``WhenStep`` for asynchronous actions.
+///
+/// An `AsyncWhenStep` is created by calling ``AsyncGivenStep/when(_:action:)``
+/// on an ``AsyncGivenStep``.
+///
+/// ## See Also
+///
+/// - ``AsyncGivenStep``
+/// - ``WhenStep``
 public struct AsyncWhenStep<Context: Sendable, Result: Sendable>: Sendable {
+    /// The description from the given step.
     public let givenDescription: String
+
+    /// The description of the action being performed.
     public let description: String
+
     let setup: @Sendable () async throws -> Context
     let action: @Sendable (Context) async throws -> Result
 
+    /// Creates a new async when step.
+    ///
+    /// - Parameters:
+    ///   - givenDescription: The description from the given step.
+    ///   - description: The description of this action.
+    ///   - setup: The async setup closure from the given step.
+    ///   - action: The async action closure to perform.
     public init(
         givenDescription: String,
         description: String,
@@ -132,7 +317,12 @@ public struct AsyncWhenStep<Context: Sendable, Result: Sendable>: Sendable {
         self.action = action
     }
 
-    /// Execute the async chain with an assertion
+    /// Executes the async chain with an assertion.
+    ///
+    /// - Parameters:
+    ///   - description: A description of the expected outcome.
+    ///   - assertion: An async closure that verifies the result.
+    /// - Throws: Any error thrown by the setup, action, or assertion closures.
     public func then(
         _ description: String,
         assertion: @escaping @Sendable (Result, StepContext) async throws -> Void
@@ -150,7 +340,29 @@ public struct AsyncWhenStep<Context: Sendable, Result: Sendable>: Sendable {
 
 // MARK: - Free Functions
 
-/// Entry point for BDD chains
+/// Creates a new BDD test chain with the given setup.
+///
+/// This is the entry point for writing Given/When/Then tests. The setup
+/// closure creates the initial context that will be passed to the action.
+///
+/// ## Example
+///
+/// ```swift
+/// try given("a registered user") {
+///     User(email: "test@example.com")
+/// }
+/// .when("they login") { user in
+///     AuthService().login(user)
+/// }
+/// .then("access is granted") { result, _ in
+///     #expect(result == .success)
+/// }
+/// ```
+///
+/// - Parameters:
+///   - description: A description of the initial state.
+///   - setup: A closure that creates and returns the test context.
+/// - Returns: A ``GivenStep`` ready to chain with `.when()`.
 public func given<Context: Sendable>(
     _ description: String,
     setup: @escaping @Sendable () throws -> Context
@@ -158,7 +370,28 @@ public func given<Context: Sendable>(
     GivenStep(description, setup: setup)
 }
 
-/// Async entry point for BDD chains
+/// Creates a new async BDD test chain with the given setup.
+///
+/// Use this overload when your setup needs to perform async operations.
+///
+/// ## Example
+///
+/// ```swift
+/// try await given("user data from API") {
+///     await API.fetchUser(id: 123)
+/// }
+/// .when("updating profile") { user in
+///     await user.save()
+/// }
+/// .then("changes persist") { result, _ in
+///     #expect(result.saved)
+/// }
+/// ```
+///
+/// - Parameters:
+///   - description: A description of the initial state.
+///   - setup: An async closure that creates and returns the test context.
+/// - Returns: An ``AsyncGivenStep`` ready to chain with `.when()`.
 public func given<Context: Sendable>(
     _ description: String,
     setup: @escaping @Sendable () async throws -> Context

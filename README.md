@@ -1,5 +1,9 @@
 # UserSpec
 
+[![Swift 6.0](https://img.shields.io/badge/Swift-6.0-orange.svg)](https://swift.org)
+[![Platforms](https://img.shields.io/badge/Platforms-iOS%20|%20macOS%20|%20watchOS%20|%20tvOS%20|%20visionOS-blue.svg)](https://developer.apple.com)
+[![License](https://img.shields.io/badge/License-Apache%202.0-green.svg)](LICENSE)
+
 A BDD testing framework for Swift, built natively on Swift Testing.
 
 ## What is UserSpec?
@@ -12,13 +16,13 @@ UserSpec brings the London School (outside-in) testing approach to iOS developme
 - Xcode 16+
 - iOS 17+ / macOS 14+ / watchOS 10+ / tvOS 17+ / visionOS 1+
 
-## Installation (Swift Package Manager)
+## Installation
 
 Add UserSpec to your `Package.swift`:
 
 ```swift
 dependencies: [
-    .package(url: "https://github.com/thedevme/UserSpec.git", from: "0.2.0")
+    .package(url: "https://github.com/thedevme/UserSpec.git", from: "1.0.0")
 ]
 ```
 
@@ -190,12 +194,6 @@ When a test fails, UserSpec shows the full chain context:
 | `.whenTap(_:action:)` | Chains to tap action |
 | `.when(_:action:)` | Chains to any action |
 | `.thenSee(_:assertion:)` | Executes chain with visual assertion |
-
-## Roadmap
-
-- **v0.1.0** — Core framework with Given/When/Then chains, macros, async support
-- **v0.2.0** — UI testing with `@UIScenario`, `givenApp`, `whenTap`, `thenSee`
-- **v1.0.0** — Stable release with full documentation
 
 ## The Book
 

@@ -7,6 +7,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.0.0] - 2026-03-28
+
+### Added
+- Full DocC documentation for all public APIs
+- DocC catalog with Getting Started guide
+- DocC articles for Given/When/Then and UI Testing
+- GitHub Actions CI for all platforms (macOS, iOS, watchOS, tvOS, visionOS)
+- Documentation build workflow
+
+### Changed
+- API is now stable — no breaking changes without major version bump
+
 ## [0.2.0] - 2026-03-28
 
 ### Added
