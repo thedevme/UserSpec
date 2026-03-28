@@ -1,0 +1,26 @@
+# Changelog
+
+All notable changes to this project will be documented in this file.
+
+The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
+and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+
+## [Unreleased]
+
+## [0.1.0] - 2026-03-28
+
+### Added
+- `@UserStory` macro for marking test structs with user story descriptions
+- `@Scenario` macro for marking test functions with scenario descriptions
+- `given()` / `when()` / `then()` chain for BDD-style tests
+- Async support with `AsyncGivenStep` and `AsyncWhenStep`
+- `StepContext` for failure message formatting
+- Swift Package Manager distribution
+- Comprehensive test suite (41 tests)
+
+## [0.2.0] - TBD
+
+### Added
+- `@UIScenario` macro
+- XCUITest integration
+- `givenApp` / `whenTap` / `thenSee` API
