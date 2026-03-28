@@ -7,6 +7,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.1.0] - 2026-03-28
+
+### Added
+- `Buildable` protocol for test data builders with `build()` closure API
+- `Builder<T>` fluent builder with `.with()` and `.configured()` chaining
+- `FixtureProviding` protocol for named test fixtures
+- Array builders with `[T].build(count:configure:)`
+- `SharedExamples` registry for reusable test behaviors
+- `SharedBehavior` protocol for type-safe shared behaviors
+- `itBehavesLike()` convenience function
+- Async shared examples support
+- Xcode templates for UserStory and Scenario
+- Examples folder with e-commerce sample project
+- 22 new tests for builders and shared examples
+
 ## [1.0.0] - 2026-03-28
 
 ### Added
