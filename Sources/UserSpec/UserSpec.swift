@@ -1,3 +1,6 @@
+import Foundation
+import Testing
+
 // MARK: - Step Context
 
 /// Captures descriptions from all steps in a chain for failure reporting.
@@ -212,7 +215,37 @@ public struct WhenStep<Context: Sendable, Result: Sendable>: Sendable {
             when: self.description,
             then: description
         )
-        try assertion(result, stepContext)
+
+        // Execute assertion and track result for RSpec reporting
+        var passed = true
+        var errorMessage: String? = nil
+
+        do {
+            try assertion(result, stepContext)
+
+            // Check if #expect recorded any failures even though no exception was thrown
+            if RSpecReporter.isEnabled && hasTestRecordedFailures() {
+                passed = false
+                errorMessage = "Expectation failed (detected via #expect)"
+            }
+        } catch {
+            passed = false
+            errorMessage = String(describing: error)
+
+            // Mark scenario complete before rethrowing (only when enabled)
+            if RSpecReporter.isEnabled,
+               let scenarioName = Test.current?.displayName {
+                RSpecReporter.shared.markScenarioComplete(scenarioName, passed: false, error: errorMessage)
+            }
+
+            throw error
+        }
+
+        // Mark scenario complete (only when enabled)
+        if RSpecReporter.isEnabled,
+           let scenarioName = Test.current?.displayName {
+            RSpecReporter.shared.markScenarioComplete(scenarioName, passed: passed, error: errorMessage)
+        }
     }
 }
 
@@ -334,7 +367,37 @@ public struct AsyncWhenStep<Context: Sendable, Result: Sendable>: Sendable {
             when: self.description,
             then: description
         )
-        try await assertion(result, stepContext)
+
+        // Execute assertion and track result for RSpec reporting
+        var passed = true
+        var errorMessage: String? = nil
+
+        do {
+            try await assertion(result, stepContext)
+
+            // Check if #expect recorded any failures even though no exception was thrown
+            if RSpecReporter.isEnabled && hasTestRecordedFailures() {
+                passed = false
+                errorMessage = "Expectation failed (detected via #expect)"
+            }
+        } catch {
+            passed = false
+            errorMessage = String(describing: error)
+
+            // Mark scenario complete before rethrowing (only when enabled)
+            if RSpecReporter.isEnabled,
+               let scenarioName = Test.current?.displayName {
+                RSpecReporter.shared.markScenarioComplete(scenarioName, passed: false, error: errorMessage)
+            }
+
+            throw error
+        }
+
+        // Mark scenario complete (only when enabled)
+        if RSpecReporter.isEnabled,
+           let scenarioName = Test.current?.displayName {
+            RSpecReporter.shared.markScenarioComplete(scenarioName, passed: passed, error: errorMessage)
+        }
     }
 }
 
@@ -367,7 +430,16 @@ public func given<Context: Sendable>(
     _ description: String,
     setup: @escaping @Sendable () throws -> Context
 ) -> GivenStep<Context> {
-    GivenStep(description, setup: setup)
+    // Register scenario start for RSpec reporting (only when enabled)
+    if RSpecReporter.isEnabled,
+       let scenarioName = Test.current?.displayName {
+        ensureRSpecReporterBootstrapped()
+        clearTestFailures()  // Clear any previous failure state
+        let storyName = extractUserStoryDescription()
+        RSpecReporter.shared.registerScenarioStart(scenarioName, story: storyName)
+    }
+
+    return GivenStep(description, setup: setup)
 }
 
 /// Creates a new async BDD test chain with the given setup.
@@ -396,5 +468,14 @@ public func given<Context: Sendable>(
     _ description: String,
     setup: @escaping @Sendable () async throws -> Context
 ) -> AsyncGivenStep<Context> {
-    AsyncGivenStep(description, setup: setup)
+    // Register scenario start for RSpec reporting (only when enabled)
+    if RSpecReporter.isEnabled,
+       let scenarioName = Test.current?.displayName {
+        ensureRSpecReporterBootstrapped()
+        clearTestFailures()  // Clear any previous failure state
+        let storyName = extractUserStoryDescription()
+        RSpecReporter.shared.registerScenarioStart(scenarioName, story: storyName)
+    }
+
+    return AsyncGivenStep(description, setup: setup)
 }

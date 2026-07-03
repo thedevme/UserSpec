@@ -4,6 +4,8 @@
 // Use in UI test targets only.
 
 #if canImport(XCTest)
+import Foundation
+import Testing
 import XCTest
 
 // MARK: - UI Given Step
@@ -106,7 +108,37 @@ public struct UIWhenStep<App, Result> {
             when: self.description,
             then: description
         )
-        try assertion(result, stepContext)
+
+        // Execute assertion and track result for RSpec reporting
+        var passed = true
+        var errorMessage: String? = nil
+
+        do {
+            try assertion(result, stepContext)
+
+            // Check if #expect recorded any failures even though no exception was thrown
+            if RSpecReporter.isEnabled && hasTestRecordedFailures() {
+                passed = false
+                errorMessage = "Expectation failed (detected via #expect)"
+            }
+        } catch {
+            passed = false
+            errorMessage = String(describing: error)
+
+            // Mark scenario complete before rethrowing (only when enabled)
+            if RSpecReporter.isEnabled,
+               let scenarioName = Test.current?.displayName {
+                RSpecReporter.shared.markScenarioComplete(scenarioName, passed: false, error: errorMessage)
+            }
+
+            throw error
+        }
+
+        // Mark scenario complete (only when enabled)
+        if RSpecReporter.isEnabled,
+           let scenarioName = Test.current?.displayName {
+            RSpecReporter.shared.markScenarioComplete(scenarioName, passed: passed, error: errorMessage)
+        }
     }
 
     /// Execute the chain with a generic assertion
@@ -194,7 +226,37 @@ public struct AsyncUIWhenStep<App, Result> {
             when: self.description,
             then: description
         )
-        try await assertion(result, stepContext)
+
+        // Execute assertion and track result for RSpec reporting
+        var passed = true
+        var errorMessage: String? = nil
+
+        do {
+            try await assertion(result, stepContext)
+
+            // Check if #expect recorded any failures even though no exception was thrown
+            if RSpecReporter.isEnabled && hasTestRecordedFailures() {
+                passed = false
+                errorMessage = "Expectation failed (detected via #expect)"
+            }
+        } catch {
+            passed = false
+            errorMessage = String(describing: error)
+
+            // Mark scenario complete before rethrowing (only when enabled)
+            if RSpecReporter.isEnabled,
+               let scenarioName = Test.current?.displayName {
+                RSpecReporter.shared.markScenarioComplete(scenarioName, passed: false, error: errorMessage)
+            }
+
+            throw error
+        }
+
+        // Mark scenario complete (only when enabled)
+        if RSpecReporter.isEnabled,
+           let scenarioName = Test.current?.displayName {
+            RSpecReporter.shared.markScenarioComplete(scenarioName, passed: passed, error: errorMessage)
+        }
     }
 
     /// Execute the async chain with a generic assertion
@@ -242,7 +304,16 @@ public func givenApp<App>(
     _ description: String,
     setup: @escaping () throws -> App
 ) -> UIGivenStep<App> {
-    UIGivenStep(description, setup: setup)
+    // Register scenario start for RSpec reporting (only when enabled)
+    if RSpecReporter.isEnabled,
+       let scenarioName = Test.current?.displayName {
+        ensureRSpecReporterBootstrapped()
+        clearTestFailures()  // Clear any previous failure state
+        let storyName = extractUserStoryDescription()
+        RSpecReporter.shared.registerScenarioStart(scenarioName, story: storyName)
+    }
+
+    return UIGivenStep(description, setup: setup)
 }
 
 /// Async entry point for UI test chains
@@ -255,7 +326,16 @@ public func givenApp<App>(
     _ description: String,
     setup: @escaping () async throws -> App
 ) -> AsyncUIGivenStep<App> {
-    AsyncUIGivenStep(description, setup: setup)
+    // Register scenario start for RSpec reporting (only when enabled)
+    if RSpecReporter.isEnabled,
+       let scenarioName = Test.current?.displayName {
+        ensureRSpecReporterBootstrapped()
+        clearTestFailures()  // Clear any previous failure state
+        let storyName = extractUserStoryDescription()
+        RSpecReporter.shared.registerScenarioStart(scenarioName, story: storyName)
+    }
+
+    return AsyncUIGivenStep(description, setup: setup)
 }
 
 // MARK: - XCUIApplication Extensions

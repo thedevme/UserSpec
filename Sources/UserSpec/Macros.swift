@@ -38,7 +38,7 @@
 /// Multiple `@UserStory` structs can exist in a single file.
 ///
 /// - Parameter description: The user story in plain English.
-@attached(member, names: named(userStoryDescription))
+@attached(member, names: named(userStoryDescription), named(_storyRegistration), named(init()))
 @attached(peer)
 public macro UserStory(_ description: String) = #externalMacro(module: "UserSpecMacros", type: "UserStoryMacro")
 

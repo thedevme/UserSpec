@@ -27,7 +27,26 @@ public struct UserStoryMacro: MemberMacro, PeerMacro {
             static let userStoryDescription: String = \(literal: description)
             """
 
-        return [propertyDecl]
+        // Add a registration property that registers the story in the global registry
+        // This allows the RSpec reporter to look up stories by type name
+        let registrationDecl: DeclSyntax = """
+            private static let _storyRegistration: Void = {
+                UserStoryRegistry.shared.register(
+                    typeName: String(describing: Self.self),
+                    story: userStoryDescription
+                )
+            }()
+            """
+
+        // Add an initializer that forces the registration to execute
+        // Swift Testing instantiates test structs, so this init will run
+        let initDecl: DeclSyntax = """
+            init() {
+                _ = Self._storyRegistration
+            }
+            """
+
+        return [propertyDecl, registrationDecl, initDecl]
     }
 
     // MARK: - PeerMacro
