@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+- RSpec output is now enabled by default (previously required `USERSPEC_RSPEC_OUTPUT=1`)
+- Environment variable `USERSPEC_RSPEC_OUTPUT` is no longer required
+
 ## [1.6.0] - 2026-07-03
 
 ### Added
@@ -14,7 +18,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `RSpecReporter` for printing scenarios in RSpec format
 - `expectRSpec()` throwing assertion function for accurate failure detection
 - `UserStoryRegistry` for type-based user story lookup
-- `USERSPEC_RSPEC_OUTPUT=1` environment variable to enable RSpec output
 - Automatic story grouping with nested scenario display
 - Color-coded pass/fail indicators (✓ green, ✗ red) with TTY detection
 - Incomplete scenario detection (scenarios that fail before `.then()`)
@@ -29,7 +32,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `.then()` and `.thenSee()` functions now track scenario completion for reporting
 
 ### Technical Notes
-- RSpec output is opt-in only; zero overhead when disabled
 - Standard `#expect` failures cannot be detected due to Swift Testing API limitations
 - Use `expectRSpec()` instead of `#expect` for accurate failure reporting in RSpec output
 - Output prints at process exit via `atexit` handler

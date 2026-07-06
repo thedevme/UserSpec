@@ -4,8 +4,8 @@ import os.lock
 
 /// RSpec-style documentation format reporter for UserSpec scenarios.
 ///
-/// When enabled via the `USERSPEC_RSPEC_OUTPUT=1` environment variable,
-/// this reporter prints scenarios in RSpec documentation format as tests complete.
+/// This reporter automatically prints scenarios in RSpec documentation format
+/// at the end of test execution.
 ///
 /// Output format:
 /// ```
@@ -20,7 +20,7 @@ public final class RSpecReporter: Sendable {
     public static let shared = RSpecReporter()
 
     public static var isEnabled: Bool {
-        ProcessInfo.processInfo.environment["USERSPEC_RSPEC_OUTPUT"] == "1"
+        true
     }
 
     private let lock: OSAllocatedUnfairLock<State>

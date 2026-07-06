@@ -4,7 +4,7 @@ import Testing
 
 /// Final demonstration of RSpec-style output for UserSpec.
 ///
-/// Run with: USERSPEC_RSPEC_OUTPUT=1 swift test --filter RSpecFinalDemo
+/// Run with: swift test --filter RSpecFinalDemo
 ///
 /// This demonstrates:
 /// - ✓ Passing scenarios
