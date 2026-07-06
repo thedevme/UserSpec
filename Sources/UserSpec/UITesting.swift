@@ -134,12 +134,15 @@ public struct UIWhenStep<App, Result> {
             throw error
         }
 
-        // Mark scenario complete (only when enabled)
-        if RSpecReporter.isEnabled,
-           let scenarioName = Test.current?.displayName {
-            RSpecReporter.shared.markScenarioComplete(scenarioName, passed: passed, error: errorMessage)
-            // Print report after each test for immediate visibility
-            RSpecReporter.shared.printReport()
+        // Print scenario result directly (doesn't rely on Test.current)
+        if RSpecReporter.isEnabled {
+            let symbol = passed ? "✓" : "✗"
+            let color = passed ? "\u{001B}[32m" : "\u{001B}[31m"
+            let reset = "\u{001B}[0m"
+            print("\(color)\(symbol)\(reset) \(stepContext.givenDescription) → \(stepContext.whenDescription) → \(stepContext.thenDescription)")
+            if let error = errorMessage {
+                print("  Error: \(error)")
+            }
         }
     }
 
@@ -254,12 +257,15 @@ public struct AsyncUIWhenStep<App, Result> {
             throw error
         }
 
-        // Mark scenario complete (only when enabled)
-        if RSpecReporter.isEnabled,
-           let scenarioName = Test.current?.displayName {
-            RSpecReporter.shared.markScenarioComplete(scenarioName, passed: passed, error: errorMessage)
-            // Print report after each test for immediate visibility
-            RSpecReporter.shared.printReport()
+        // Print scenario result directly (doesn't rely on Test.current)
+        if RSpecReporter.isEnabled {
+            let symbol = passed ? "✓" : "✗"
+            let color = passed ? "\u{001B}[32m" : "\u{001B}[31m"
+            let reset = "\u{001B}[0m"
+            print("\(color)\(symbol)\(reset) \(stepContext.givenDescription) → \(stepContext.whenDescription) → \(stepContext.thenDescription)")
+            if let error = errorMessage {
+                print("  Error: \(error)")
+            }
         }
     }
 
