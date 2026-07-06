@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.6.2] - 2026-07-06
+
 ### Added
 - `RSpecReportingTrait` for reliable RSpec output in Xcode/iOS Simulator tests
 - `@Suite(.rspecReporting)` trait for iOS 18.0+ to ensure reports print in Xcode
@@ -15,6 +17,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - RSpec output now requires `@Suite(.rspecReporting)` for Xcode/iOS Simulator tests
 - Command-line `swift test` continues to work automatically via `atexit`
+
+### Fixed
+- RSpec output not appearing in Xcode iOS Simulator tests (atexit doesn't fire)
 
 ### Technical Notes
 - Test Scoping Traits (Swift 6.1+) enable reliable reporting in Xcode
