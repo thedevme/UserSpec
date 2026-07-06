@@ -10,13 +10,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [1.6.3] - 2026-07-06
 
 ### Changed
-- RSpec output now prints after **each test completes** for immediate visibility
-- No longer requires `@Suite(.rspecReporting)` trait (was unreliable in Xcode)
-- Report will print multiple times (once per test) but is always visible
+- RSpec output now prints directly from `.then()` without accumulating scenarios
+- No longer requires `@Suite(.rspecReporting)` or any setup
+- Output format: `✓ given → when → then` with color support
 
 ### Fixed
-- RSpec output not appearing in Xcode console
-- Test Scoping Trait approach was unreliable across different Xcode/Swift versions
+- RSpec output not appearing due to `Test.current` being nil in certain environments
+- Removed dependency on `Test.current?.displayName` for scenario tracking
 
 ## [1.6.2] - 2026-07-06
 
