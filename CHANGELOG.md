@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.6.1] - 2026-07-06
+
 ### Changed
 - RSpec output is now enabled by default (previously required `USERSPEC_RSPEC_OUTPUT=1`)
 - Environment variable `USERSPEC_RSPEC_OUTPUT` is no longer required
