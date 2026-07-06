@@ -7,6 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.6.3] - 2026-07-06
+
+### Changed
+- RSpec output now prints after **each test completes** for immediate visibility
+- No longer requires `@Suite(.rspecReporting)` trait (was unreliable in Xcode)
+- Report will print multiple times (once per test) but is always visible
+
+### Fixed
+- RSpec output not appearing in Xcode console
+- Test Scoping Trait approach was unreliable across different Xcode/Swift versions
+
 ## [1.6.2] - 2026-07-06
 
 ### Added
