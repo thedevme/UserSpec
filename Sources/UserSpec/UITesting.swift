@@ -138,6 +138,8 @@ public struct UIWhenStep<App, Result> {
         if RSpecReporter.isEnabled,
            let scenarioName = Test.current?.displayName {
             RSpecReporter.shared.markScenarioComplete(scenarioName, passed: passed, error: errorMessage)
+            // Print report after each test for immediate visibility
+            RSpecReporter.shared.printReport()
         }
     }
 
@@ -256,6 +258,8 @@ public struct AsyncUIWhenStep<App, Result> {
         if RSpecReporter.isEnabled,
            let scenarioName = Test.current?.displayName {
             RSpecReporter.shared.markScenarioComplete(scenarioName, passed: passed, error: errorMessage)
+            // Print report after each test for immediate visibility
+            RSpecReporter.shared.printReport()
         }
     }
 
