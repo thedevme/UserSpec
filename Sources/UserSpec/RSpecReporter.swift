@@ -27,6 +27,7 @@ public final class RSpecReporter: Sendable {
 
     private struct State {
         var scenarios: [String: ScenarioState] = [:]
+        var hasReportBeenPrinted: Bool = false
     }
 
     private struct ScenarioState {
@@ -81,10 +82,17 @@ public final class RSpecReporter: Sendable {
 
     /// Prints the RSpec-format report.
     ///
-    /// Called automatically at process exit via atexit handler.
     /// Groups scenarios by story, prints ✓/✗ with color (if TTY),
     /// and shows a summary line.
     public func printReport() {
+        lock.withLock { state in
+            guard !state.hasReportBeenPrinted else { return }
+            state.hasReportBeenPrinted = true
+        }
+        _printReport()
+    }
+
+    private func _printReport() {
         let scenarios = lock.withLock { $0.scenarios }
 
         guard !scenarios.isEmpty else { return }
@@ -150,13 +158,16 @@ public final class RSpecReporter: Sendable {
 
 // MARK: - Bootstrap
 
-/// Ensures atexit handler is registered when RSpec reporting is enabled.
-/// This is called from given() on first use.
+/// Ensures RSpec reporter is ready and atexit handler is registered (for command-line tests).
+/// Called from given() on first use to initialize the reporter.
+///
+/// Note: For iOS Simulator tests in Xcode, use @Suite(.rspecReporting) instead,
+/// as atexit handlers don't fire reliably in that environment.
 func ensureRSpecReporterBootstrapped() {
     _ = RSpecReporterBootstrap.shared
 }
 
-/// Bootstrap class that registers the atexit handler.
+/// Bootstrap class that registers the atexit handler (for command-line tests).
 private final class RSpecReporterBootstrap: @unchecked Sendable {
     static let shared = RSpecReporterBootstrap()
 
