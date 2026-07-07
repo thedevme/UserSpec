@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.6.6] - 2026-07-06
+
+### Changed
+- Use emojis for pass/fail indicators: ✅ for pass, ❌ for fail
+- More visually distinct in Xcode console
+
 ## [1.6.5] - 2026-07-06
 
 ### Changed
