@@ -243,10 +243,10 @@ public struct WhenStep<Context: Sendable, Result: Sendable>: Sendable {
 
         // Print scenario result directly (doesn't rely on Test.current)
         if RSpecReporter.isEnabled {
-            let symbol = passed ? "✓" : "✗"
+            let symbol = passed ? "✅" : "❌"
             print("\(symbol) \(stepContext.givenDescription) → \(stepContext.whenDescription) → \(stepContext.thenDescription)")
             if let error = errorMessage {
-                print("  ✗ Error: \(error)")
+                print("  ❌ Error: \(error)")
             }
         }
     }
@@ -398,10 +398,10 @@ public struct AsyncWhenStep<Context: Sendable, Result: Sendable>: Sendable {
 
         // Print scenario result directly (doesn't rely on Test.current)
         if RSpecReporter.isEnabled {
-            let symbol = passed ? "✓" : "✗"
+            let symbol = passed ? "✅" : "❌"
             print("\(symbol) \(stepContext.givenDescription) → \(stepContext.whenDescription) → \(stepContext.thenDescription)")
             if let error = errorMessage {
-                print("  ✗ Error: \(error)")
+                print("  ❌ Error: \(error)")
             }
         }
     }
