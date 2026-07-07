@@ -137,11 +137,9 @@ public struct UIWhenStep<App, Result> {
         // Print scenario result directly (doesn't rely on Test.current)
         if RSpecReporter.isEnabled {
             let symbol = passed ? "✓" : "✗"
-            let color = passed ? "\u{001B}[32m" : "\u{001B}[31m"
-            let reset = "\u{001B}[0m"
-            print("\(color)\(symbol)\(reset) \(stepContext.givenDescription) → \(stepContext.whenDescription) → \(stepContext.thenDescription)")
+            print("\(symbol) \(stepContext.givenDescription) → \(stepContext.whenDescription) → \(stepContext.thenDescription)")
             if let error = errorMessage {
-                print("  Error: \(error)")
+                print("  ✗ Error: \(error)")
             }
         }
     }
@@ -260,11 +258,9 @@ public struct AsyncUIWhenStep<App, Result> {
         // Print scenario result directly (doesn't rely on Test.current)
         if RSpecReporter.isEnabled {
             let symbol = passed ? "✓" : "✗"
-            let color = passed ? "\u{001B}[32m" : "\u{001B}[31m"
-            let reset = "\u{001B}[0m"
-            print("\(color)\(symbol)\(reset) \(stepContext.givenDescription) → \(stepContext.whenDescription) → \(stepContext.thenDescription)")
+            print("\(symbol) \(stepContext.givenDescription) → \(stepContext.whenDescription) → \(stepContext.thenDescription)")
             if let error = errorMessage {
-                print("  Error: \(error)")
+                print("  ✗ Error: \(error)")
             }
         }
     }

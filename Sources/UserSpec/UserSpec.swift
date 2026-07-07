@@ -242,17 +242,12 @@ public struct WhenStep<Context: Sendable, Result: Sendable>: Sendable {
         }
 
         // Print scenario result directly (doesn't rely on Test.current)
-        print("🔥 WhenStep.then() completed - RSpecReporter.isEnabled = \(RSpecReporter.isEnabled), passed = \(passed)")
         if RSpecReporter.isEnabled {
-            print("🔥 About to print scenario result")
             let symbol = passed ? "✓" : "✗"
-            let color = passed ? "\u{001B}[32m" : "\u{001B}[31m"
-            let reset = "\u{001B}[0m"
-            print("\(color)\(symbol)\(reset) \(stepContext.givenDescription) → \(stepContext.whenDescription) → \(stepContext.thenDescription)")
+            print("\(symbol) \(stepContext.givenDescription) → \(stepContext.whenDescription) → \(stepContext.thenDescription)")
             if let error = errorMessage {
-                print("  Error: \(error)")
+                print("  ✗ Error: \(error)")
             }
-            print("🔥 Scenario result printed")
         }
     }
 }
@@ -402,17 +397,12 @@ public struct AsyncWhenStep<Context: Sendable, Result: Sendable>: Sendable {
         }
 
         // Print scenario result directly (doesn't rely on Test.current)
-        print("🔥 WhenStep.then() completed - RSpecReporter.isEnabled = \(RSpecReporter.isEnabled), passed = \(passed)")
         if RSpecReporter.isEnabled {
-            print("🔥 About to print scenario result")
             let symbol = passed ? "✓" : "✗"
-            let color = passed ? "\u{001B}[32m" : "\u{001B}[31m"
-            let reset = "\u{001B}[0m"
-            print("\(color)\(symbol)\(reset) \(stepContext.givenDescription) → \(stepContext.whenDescription) → \(stepContext.thenDescription)")
+            print("\(symbol) \(stepContext.givenDescription) → \(stepContext.whenDescription) → \(stepContext.thenDescription)")
             if let error = errorMessage {
-                print("  Error: \(error)")
+                print("  ✗ Error: \(error)")
             }
-            print("🔥 Scenario result printed")
         }
     }
 }
