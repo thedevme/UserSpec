@@ -7,6 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.6.5] - 2026-07-06
+
+### Changed
+- Removed ANSI color codes (Xcode console doesn't render them)
+- Clean output format: `✓ given → when → then`
+
+### Fixed
+- RSpec output now appears correctly in Xcode console
+
 ## [1.6.4] - 2026-07-06
 
 ### Fixed
