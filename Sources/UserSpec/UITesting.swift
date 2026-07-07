@@ -137,10 +137,9 @@ public struct UIWhenStep<App, Result> {
         // Print scenario result directly (doesn't rely on Test.current)
         if RSpecReporter.isEnabled {
             let symbol = passed ? "✅" : "❌"
-            print("\(symbol)")
-            print("  Given \(stepContext.givenDescription)")
-            print("  When \(stepContext.whenDescription)")
-            print("  Then \(stepContext.thenDescription)")
+            let scenarioName = Test.current?.displayName ?? "Scenario"
+            print("\n\(symbol) \(scenarioName)")
+            print("  given \(stepContext.givenDescription) when \(stepContext.whenDescription) then \(stepContext.thenDescription)")
             if let error = errorMessage {
                 print("  ❌ Error: \(error)")
             }
@@ -261,10 +260,9 @@ public struct AsyncUIWhenStep<App, Result> {
         // Print scenario result directly (doesn't rely on Test.current)
         if RSpecReporter.isEnabled {
             let symbol = passed ? "✅" : "❌"
-            print("\(symbol)")
-            print("  Given \(stepContext.givenDescription)")
-            print("  When \(stepContext.whenDescription)")
-            print("  Then \(stepContext.thenDescription)")
+            let scenarioName = Test.current?.displayName ?? "Scenario"
+            print("\n\(symbol) \(scenarioName)")
+            print("  given \(stepContext.givenDescription) when \(stepContext.whenDescription) then \(stepContext.thenDescription)")
             if let error = errorMessage {
                 print("  ❌ Error: \(error)")
             }
