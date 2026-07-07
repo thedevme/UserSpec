@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.6.7] - 2026-07-06
+
+### Changed
+- Format output as narrative sentence: scenario name on first line, "given...when...then" on second
+- Example: `✅ Economy user can select seat` followed by `given a passenger when they select then confirmed`
+
 ## [1.6.6] - 2026-07-06
 
 ### Changed
