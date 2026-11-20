@@ -1,6 +1,8 @@
 import Foundation
 import Darwin
 import os.lock
+import Foundation
+import Testing
 
 /// RSpec-style documentation format reporter for UserSpec scenarios.
 ///
@@ -26,7 +28,7 @@ public final class RSpecReporter: Sendable {
     private let lock: OSAllocatedUnfairLock<State>
 
     private struct State {
-        var scenarios: [String: ScenarioState] = [:]
+        var scenarios: [Test.ID: ScenarioState] = [:]
         var hasReportBeenPrinted: Bool = false
     }
 
@@ -55,8 +57,10 @@ public final class RSpecReporter: Sendable {
     ///   - name: The scenario name (from @Test display name)
     ///   - story: The user story description
     public func registerScenarioStart(_ name: String, story: String) {
+        guard let testID = Test.current?.id else { return }
+
         lock.withLock { state in
-            state.scenarios[name] = ScenarioState(
+            state.scenarios[testID] = ScenarioState(
                 story: story,
                 name: name,
                 status: .inProgress,
@@ -73,10 +77,16 @@ public final class RSpecReporter: Sendable {
     ///   - name: The scenario name
     ///   - passed: Whether the scenario passed
     ///   - error: The error message if it failed
-    public func markScenarioComplete(_ name: String, passed: Bool, error: String?) {
+    public func markScenarioComplete(
+        _ name: String,
+        passed: Bool,
+        error: String?
+    ) {
+        guard let testID = Test.current?.id else { return }
+
         lock.withLock { state in
-            state.scenarios[name]?.status = .completed(passed: passed)
-            state.scenarios[name]?.errorMessage = error
+            state.scenarios[testID]?.status = .completed(passed: passed)
+            state.scenarios[testID]?.errorMessage = error
         }
     }
 
