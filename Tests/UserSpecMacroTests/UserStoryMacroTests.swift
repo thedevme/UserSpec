@@ -18,12 +18,25 @@ final class UserStoryMacroTests: XCTestCase {
             struct SeatSelectionSpec {
             }
             """,
+
             expandedSource: """
             struct SeatSelectionSpec {
 
                 static let userStoryDescription: String = "As a traveler, I want to select my seat"
+
+                private static let _storyRegistration: Void = {
+                    UserStoryRegistry.shared.register(
+                        typeName: String(describing: Self.self),
+                        story: userStoryDescription
+                    )
+                }()
+
+                init() {
+                    _ = Self._storyRegistration
+                }
             }
             """,
+
             macros: testMacros
         )
     }
@@ -39,6 +52,17 @@ final class UserStoryMacroTests: XCTestCase {
             struct SeatUpgradeSpec {
 
                 static let userStoryDescription: String = "As a frequent flyer, I want to upgrade my seat so that I can enjoy more legroom on long flights"
+
+                private static let _storyRegistration: Void = {
+                    UserStoryRegistry.shared.register(
+                        typeName: String(describing: Self.self),
+                        story: userStoryDescription
+                    )
+                }()
+
+                init() {
+                    _ = Self._storyRegistration
+                }
             }
             """,
             macros: testMacros
@@ -58,6 +82,17 @@ final class UserStoryMacroTests: XCTestCase {
                 let mockService = MockAuthService()
 
                 static let userStoryDescription: String = "As a user, I want to login"
+
+                private static let _storyRegistration: Void = {
+                    UserStoryRegistry.shared.register(
+                        typeName: String(describing: Self.self),
+                        story: userStoryDescription
+                    )
+                }()
+
+                init() {
+                    _ = Self._storyRegistration
+                }
             }
             """,
             macros: testMacros

@@ -1,3 +1,5 @@
+import Foundation
+
 // MARK: - Shared Examples
 //
 // Reusable test behaviors that can be included across multiple specs.
@@ -26,9 +28,11 @@
 ///     try SharedExamples.run("a valid response", with: ResponseContext(response: response))
 /// }
 /// ```
+///
+
 public enum SharedExamples {
-    /// Storage for registered shared examples.
     private nonisolated(unsafe) static var registry: [String: Any] = [:]
+    private static let registryLock = NSLock()
 
     /// Defines a shared example with a name and behavior closure.
     ///
@@ -39,19 +43,23 @@ public enum SharedExamples {
         _ name: String,
         behavior: @escaping (Context) throws -> Void
     ) {
-        registry[name] = behavior
+        registryLock.withLock {
+            registry[name] = behavior
+        }
     }
 
-    /// Defines an async shared example.
+    /// Defines an asynchronous shared example.
     ///
     /// - Parameters:
     ///   - name: A unique name for the shared example.
-    ///   - behavior: An async closure that executes the shared behavior.
+    ///   - behavior: An asynchronous closure that executes the shared behavior.
     public static func defineAsync<Context>(
         _ name: String,
         behavior: @escaping (Context) async throws -> Void
     ) {
-        registry[name] = behavior
+        registryLock.withLock {
+            registry[name] = behavior
+        }
     }
 
     /// Runs a shared example with the provided context.
@@ -60,23 +68,41 @@ public enum SharedExamples {
     ///   - name: The name of the shared example to run.
     ///   - context: The context to pass to the shared behavior.
     /// - Throws: If the shared example is not found or throws an error.
-    public static func run<Context>(_ name: String, with context: Context) throws {
-        guard let behavior = registry[name] as? (Context) throws -> Void else {
+    public static func run<Context>(
+        _ name: String,
+        with context: Context
+    ) throws {
+        let behavior: ((Context) throws -> Void)? =
+            registryLock.withLock {
+                registry[name] as? (Context) throws -> Void
+            }
+
+        guard let behavior else {
             throw SharedExampleError.notFound(name)
         }
+
         try behavior(context)
     }
 
-    /// Runs an async shared example with the provided context.
+    /// Runs an asynchronous shared example with the provided context.
     ///
     /// - Parameters:
     ///   - name: The name of the shared example to run.
     ///   - context: The context to pass to the shared behavior.
     /// - Throws: If the shared example is not found or throws an error.
-    public static func runAsync<Context>(_ name: String, with context: Context) async throws {
-        guard let behavior = registry[name] as? (Context) async throws -> Void else {
+    public static func runAsync<Context>(
+        _ name: String,
+        with context: Context
+    ) async throws {
+        let behavior: ((Context) async throws -> Void)? =
+            registryLock.withLock {
+                registry[name] as? (Context) async throws -> Void
+            }
+
+        guard let behavior else {
             throw SharedExampleError.notFound(name)
         }
+
         try await behavior(context)
     }
 
@@ -84,14 +110,19 @@ public enum SharedExamples {
     ///
     /// Useful for test cleanup between test runs.
     public static func reset() {
-        registry.removeAll()
+        registryLock.withLock {
+            registry.removeAll()
+        }
     }
 
     /// Returns all registered shared example names.
     public static var registeredNames: [String] {
-        Array(registry.keys).sorted()
+        registryLock.withLock {
+            Array(registry.keys).sorted()
+        }
     }
 }
+
 
 /// Errors that can occur when working with shared examples.
 public enum SharedExampleError: Error, CustomStringConvertible {

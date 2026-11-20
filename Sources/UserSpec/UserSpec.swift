@@ -204,54 +204,117 @@ public struct WhenStep<Context: Sendable, Result: Sendable>: Sendable {
     ///   - description: A description of the expected outcome.
     ///   - assertion: A closure that verifies the result.
     /// - Throws: Any error thrown by the setup, action, or assertion closures.
+
     public func then(
         _ description: String,
         assertion: @escaping @Sendable (Result, StepContext) throws -> Void
     ) throws {
-        let context = try setup()
-        let result = try action(context)
         let stepContext = StepContext(
             given: givenDescription,
             when: self.description,
             then: description
         )
 
-        // Execute assertion and track result for RSpec reporting
+        // MARK: - Execute Given and When
+
+        var failingStep = "Given"
+        let result: Result
+
+        do {
+            let context = try setup()
+
+            failingStep = "When"
+            result = try action(context)
+        } catch {
+            if RSpecReporter.isEnabled,
+               let scenarioName = Test.current?.displayName {
+                RSpecReporter.shared.markScenarioComplete(
+                    scenarioName,
+                    passed: false,
+                    error: """
+                    \(stepContext.formatFailureMessage())
+                    Error in \(failingStep): \(error)
+                    """
+                )
+            }
+
+            throw error
+        }
+
+        // MARK: - Execute Then Assertion
+
         var passed = true
         var errorMessage: String? = nil
 
         do {
             try assertion(result, stepContext)
 
-            // Check if #expect recorded any failures even though no exception was thrown
+            // Detect non-throwing #expect failures
             if RSpecReporter.isEnabled && hasTestRecordedFailures() {
                 passed = false
                 errorMessage = "Expectation failed (detected via #expect)"
             }
         } catch {
             passed = false
-            errorMessage = String(describing: error)
 
-            // Mark scenario complete before rethrowing (only when enabled)
+            errorMessage = """
+            \(stepContext.formatFailureMessage())
+            Error: \(error)
+            """
+
+            // Record assertion failure before rethrowing
             if RSpecReporter.isEnabled,
                let scenarioName = Test.current?.displayName {
-                RSpecReporter.shared.markScenarioComplete(scenarioName, passed: false, error: errorMessage)
+                RSpecReporter.shared.markScenarioComplete(
+                    scenarioName,
+                    passed: false,
+                    error: errorMessage
+                )
             }
 
             throw error
         }
 
-        // Print scenario result directly (doesn't rely on Test.current)
+        // MARK: - Format Non-Throwing Failures
+
+        if !passed {
+            errorMessage = """
+            \(stepContext.formatFailureMessage())
+            Error: \(errorMessage ?? "Expectation failed")
+            """
+        }
+
+        // MARK: - Complete Scenario
+
+        if RSpecReporter.isEnabled,
+           let scenarioName = Test.current?.displayName {
+            RSpecReporter.shared.markScenarioComplete(
+                scenarioName,
+                passed: passed,
+                error: errorMessage
+            )
+        }
+
+        // MARK: - Print Scenario Result
+
         if RSpecReporter.isEnabled {
             let symbol = passed ? "✅" : "❌"
             let scenarioName = Test.current?.displayName ?? "Scenario"
+
             print("\n\(symbol) \(scenarioName)")
-            print("  given \(stepContext.givenDescription) when \(stepContext.whenDescription) then \(stepContext.thenDescription)")
+
+            print(
+                "  given \(stepContext.givenDescription) " +
+                "when \(stepContext.whenDescription) " +
+                "then \(stepContext.thenDescription)"
+            )
+
             if let error = errorMessage {
                 print("  ❌ Error: \(error)")
             }
         }
     }
+
 }
 
 // MARK: - Async Given Step
@@ -365,50 +428,112 @@ public struct AsyncWhenStep<Context: Sendable, Result: Sendable>: Sendable {
         _ description: String,
         assertion: @escaping @Sendable (Result, StepContext) async throws -> Void
     ) async throws {
-        let context = try await setup()
-        let result = try await action(context)
         let stepContext = StepContext(
             given: givenDescription,
             when: self.description,
             then: description
         )
 
-        // Execute assertion and track result for RSpec reporting
+        // MARK: - Execute Given and When
+
+        var failingStep = "Given"
+        let result: Result
+
+        do {
+            let context = try await setup()
+
+            failingStep = "When"
+            result = try await action(context)
+        } catch {
+            if RSpecReporter.isEnabled,
+               let scenarioName = Test.current?.displayName {
+                RSpecReporter.shared.markScenarioComplete(
+                    scenarioName,
+                    passed: false,
+                    error: """
+                    \(stepContext.formatFailureMessage())
+                    Error in \(failingStep): \(error)
+                    """
+                )
+            }
+
+            throw error
+        }
+
+        // MARK: - Execute Then Assertion
+
         var passed = true
         var errorMessage: String? = nil
 
         do {
             try await assertion(result, stepContext)
 
-            // Check if #expect recorded any failures even though no exception was thrown
+            // Detect non-throwing #expect failures
             if RSpecReporter.isEnabled && hasTestRecordedFailures() {
                 passed = false
                 errorMessage = "Expectation failed (detected via #expect)"
             }
         } catch {
             passed = false
-            errorMessage = String(describing: error)
 
-            // Mark scenario complete before rethrowing (only when enabled)
+            errorMessage = """
+            \(stepContext.formatFailureMessage())
+            Error: \(error)
+            """
+
+            // Record failure before rethrowing
             if RSpecReporter.isEnabled,
                let scenarioName = Test.current?.displayName {
-                RSpecReporter.shared.markScenarioComplete(scenarioName, passed: false, error: errorMessage)
+                RSpecReporter.shared.markScenarioComplete(
+                    scenarioName,
+                    passed: false,
+                    error: errorMessage
+                )
             }
 
             throw error
         }
 
-        // Print scenario result directly (doesn't rely on Test.current)
+        // MARK: - Format Non-Throwing Failures
+
+        if !passed {
+            errorMessage = """
+            \(stepContext.formatFailureMessage())
+            Error: \(errorMessage ?? "Expectation failed")
+            """
+        }
+
+        // MARK: - Complete Scenario
+
+        if RSpecReporter.isEnabled,
+           let scenarioName = Test.current?.displayName {
+            RSpecReporter.shared.markScenarioComplete(
+                scenarioName,
+                passed: passed,
+                error: errorMessage
+            )
+        }
+
+        // MARK: - Print Scenario Result
+
         if RSpecReporter.isEnabled {
             let symbol = passed ? "✅" : "❌"
             let scenarioName = Test.current?.displayName ?? "Scenario"
+
             print("\n\(symbol) \(scenarioName)")
-            print("  given \(stepContext.givenDescription) when \(stepContext.whenDescription) then \(stepContext.thenDescription)")
+
+            print(
+                "  given \(stepContext.givenDescription) " +
+                "when \(stepContext.whenDescription) " +
+                "then \(stepContext.thenDescription)"
+            )
+
             if let error = errorMessage {
                 print("  ❌ Error: \(error)")
             }
         }
     }
+
 }
 
 // MARK: - Free Functions

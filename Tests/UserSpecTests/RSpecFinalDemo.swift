@@ -43,7 +43,11 @@ struct SeatSelectionRSpecFinalDemo {
         }
     }
 
-    @Test("Business user can select a business seat")
+
+    @Test(
+        "Business user can select a business seat",
+        .enabled(if: ProcessInfo.processInfo.environment["USERSPEC_RUN_FAILURE_DEMOS"] == "1")
+    )
     func businessSelectsBusiness() throws {
         try given("a flight with business seats") {
             ["1A", "1B"]
@@ -57,7 +61,10 @@ struct SeatSelectionRSpecFinalDemo {
         }
     }
 
-    @Test("Seat selection fails when flight is fully booked")
+    @Test(
+        "Seat selection fails when flight is fully booked",
+        .enabled(if: ProcessInfo.processInfo.environment["USERSPEC_RUN_FAILURE_DEMOS"] == "1")
+    )
     func fullFlightScenario() throws {
         struct NoSeatsError: Error {}
 

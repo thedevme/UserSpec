@@ -20,7 +20,7 @@ public final class RSpecReporter: Sendable {
     public static let shared = RSpecReporter()
 
     public static var isEnabled: Bool {
-        true
+        extractUserStoryDescription() != "Unknown Story"
     }
 
     private let lock: OSAllocatedUnfairLock<State>
@@ -119,6 +119,13 @@ public final class RSpecReporter: Sendable {
                         print("  \(colorize("✓", color: .green)) \(scenario.name)")
                     } else {
                         print("  \(colorize("✗", color: .red)) \(scenario.name)")
+
+                        if let details = scenario.errorMessage {
+                            for line in details.split(separator: "\n") {
+                                print("    \(line)")
+                            }
+                        }
+
                         totalFailures += 1
                     }
                 case .inProgress:
@@ -138,9 +145,14 @@ public final class RSpecReporter: Sendable {
     }
 
     private func colorize(_ text: String, color: ANSIColor) -> String {
-        guard isTTY() else { return text }
+        guard ProcessInfo.processInfo.environment["USERSPEC_ANSI_COLORS"] == "1",
+              isTTY() else {
+            return text
+        }
+
         return "\(color.code)\(text)\(ANSIColor.reset)"
     }
+
 
     private enum ANSIColor {
         case green, red

@@ -3,7 +3,7 @@ import Testing
 
 // MARK: - Shared Examples Tests
 
-@Suite("Shared Examples Tests")
+@Suite("Shared Examples Tests", .serialized)
 struct SharedExamplesTests {
 
     init() {
@@ -26,7 +26,6 @@ struct SharedExamplesTests {
         }
 
         try SharedExamples.run("executes", with: ())
-
         #expect(executed == true)
     }
 
@@ -39,7 +38,6 @@ struct SharedExamplesTests {
         }
 
         try SharedExamples.run("receives context", with: 42)
-
         #expect(receivedValue == 42)
     }
 
@@ -53,10 +51,12 @@ struct SharedExamplesTests {
     @Test("reset() clears all examples")
     func resetClears() {
         SharedExamples.define("to be cleared") { (_: Void) in }
-        #expect(SharedExamples.registeredNames.contains("to be cleared"))
+
+        #expect(
+            SharedExamples.registeredNames.contains("to be cleared")
+        )
 
         SharedExamples.reset()
-
         #expect(SharedExamples.registeredNames.isEmpty)
     }
 
@@ -69,54 +69,66 @@ struct SharedExamplesTests {
         }
 
         try itBehavesLike("behaves like", context: ())
-
         #expect(executed == true)
+    }
+
+    // MARK: - Async Shared Examples Tests
+
+    @Suite("Async Shared Examples Tests")
+    struct AsyncSharedExamplesTests {
+
+        init() {
+            SharedExamples.reset()
+        }
+
+        @Test("defineAsync() registers async example")
+        func defineAsyncRegisters() {
+            SharedExamples.defineAsync("async example") {
+                (_: String) async in
+            }
+
+            #expect(
+                SharedExamples.registeredNames.contains("async example")
+            )
+        }
+
+        @Test("runAsync() executes async example")
+        func runAsyncExecutes() async throws {
+            var executed = false
+
+            SharedExamples.defineAsync("async executes") {
+                (_: Void) async in
+                await Task.yield()
+                executed = true
+            }
+
+            try await SharedExamples.runAsync(
+                "async executes",
+                with: ()
+            )
+
+            #expect(executed == true)
+        }
+
+        @Test("itBehavesLikeAsync() runs async example")
+        func itBehavesLikeAsyncRuns() async throws {
+            var executed = false
+
+            SharedExamples.defineAsync("async behaves") {
+                (_: Void) async in
+                executed = true
+            }
+
+            try await itBehavesLikeAsync(
+                "async behaves",
+                context: ()
+            )
+
+            #expect(executed == true)
+        }
     }
 }
 
-// MARK: - Async Shared Examples Tests
-
-@Suite("Async Shared Examples Tests")
-struct AsyncSharedExamplesTests {
-
-    init() {
-        SharedExamples.reset()
-    }
-
-    @Test("defineAsync() registers async example")
-    func defineAsyncRegisters() {
-        SharedExamples.defineAsync("async example") { (_: String) async in }
-
-        #expect(SharedExamples.registeredNames.contains("async example"))
-    }
-
-    @Test("runAsync() executes async example")
-    func runAsyncExecutes() async throws {
-        var executed = false
-
-        SharedExamples.defineAsync("async executes") { (_: Void) async in
-            try? await Task.sleep(nanoseconds: 1_000)
-            executed = true
-        }
-
-        try await SharedExamples.runAsync("async executes", with: ())
-
-        #expect(executed == true)
-    }
-
-    @Test("itBehavesLikeAsync() runs async example")
-    func itBehavesLikeAsyncRuns() async throws {
-        var executed = false
-
-        SharedExamples.defineAsync("async behaves") { (_: Void) async in
-            executed = true
-        }
-
-        try await itBehavesLikeAsync("async behaves", context: ())
-
-        #expect(executed == true)
-    }
-}
 
 // MARK: - SharedBehavior Protocol Tests
 

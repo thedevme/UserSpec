@@ -4,7 +4,7 @@ import Foundation
 
 // MARK: - Test Reporter Tests
 
-@Suite("Test Reporter Tests")
+@Suite("Test Reporter Tests", .serialized)
 struct TestReporterTests {
 
     init() {
